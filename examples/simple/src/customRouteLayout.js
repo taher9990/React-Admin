@@ -1,38 +1,32 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { crudGetList as crudGetListAction, Title } from 'react-admin'; // eslint-disable-line import/no-unresolved
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { crudGetList, Title } from 'react-admin';
 
-class CustomRouteLayout extends Component {
-    componentWillMount() {
-        this.props.crudGetList(
-            'posts',
-            { page: 0, perPage: 10 },
-            { field: 'id', order: 'ASC' }
+const CustomRouteLayout = () => {
+    const dispatch = useDispatch();
+    const total = useSelector(state =>
+        state.admin.resources.posts ? state.admin.resources.posts.list.total : 0
+    );
+
+    useEffect(() => {
+        dispatch(
+            crudGetList(
+                'posts',
+                { page: 0, perPage: 10 },
+                { field: 'id', order: 'ASC' }
+            )
         );
-    }
+    }, [dispatch]);
 
-    render() {
-        const { total } = this.props;
+    return (
+        <div>
+            <Title title="Example Admin" />
+            <h1>Posts</h1>
+            <p>
+                Found <span className="total">{total}</span> posts !
+            </p>
+        </div>
+    );
+};
 
-        return (
-            <div>
-                <Title title="Example Admin" />
-                <h1>Posts</h1>
-                <p>
-                    Found <span className="total">{total}</span> posts !
-                </p>
-            </div>
-        );
-    }
-}
-
-const mapStateToProps = state => ({
-    total: state.admin.resources.posts
-        ? state.admin.resources.posts.list.total
-        : 0,
-});
-
-export default connect(
-    mapStateToProps,
-    { crudGetList: crudGetListAction }
-)(CustomRouteLayout);
+export default CustomRouteLayout;
